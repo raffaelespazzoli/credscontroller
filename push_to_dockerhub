@@ -1,0 +1,4 @@
+#!/bin/bash
+
+docker login -u raffaelespazzoli -p $DOCKER_PWD
+docker push raffaelespazzoli/credscontroller:0.0.1
