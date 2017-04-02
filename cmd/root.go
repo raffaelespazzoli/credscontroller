@@ -56,9 +56,9 @@ func init() {
 	RootCmd.PersistentFlags().String("vault-addr", "https://vault:8200", "Vault URL")
 	RootCmd.PersistentFlags().String("vault-cacert", "/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt", "ca certificate to be used to validate the connection to Vault")
 	RootCmd.PersistentFlags().String("log-level", "info", "log level")
-	viper.BindPFlag("vault-addr", RootCmd.Flags().Lookup("vault-addr"))
-	viper.BindPFlag("vault-cacert", RootCmd.Flags().Lookup("vault-cacert"))
-	viper.BindPFlag("log-level", RootCmd.Flags().Lookup("log-level"))
+	viper.BindPFlag("vault-addr", RootCmd.PersistentFlags().Lookup("vault-addr"))
+	viper.BindPFlag("vault-cacert", RootCmd.PersistentFlags().Lookup("vault-cacert"))
+	viper.BindPFlag("log-level", RootCmd.PersistentFlags().Lookup("log-level"))
 }
 
 // initConfig reads in config file and ENV variables if set.

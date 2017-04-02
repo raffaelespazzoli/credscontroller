@@ -1,0 +1,13 @@
+spring.cloud.vault:
+    host: ${vault.host:localhost}
+    port: ${vault.port:8200}
+    scheme: https
+    authentication: TOKEN
+    token: placeholder
+    ssl:
+        #trust-store: file://${vault.truststore:/var/run/secrets/vault.jks}
+        #trust-store: bean://inMemoryVaultTrustStore
+        trust-store-password: ${vault.truststore.password:changeit}
+    config:
+        order: 10
+logging.level.org.springframework: debug                

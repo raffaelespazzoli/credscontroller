@@ -27,10 +27,8 @@ spec:
     spec:
       containers:
       - name: vault-controller
-        image: "raffaelespazzoli/credscontroller:0.0.1"
+        image: "raffaelespazzoli/vault-controller:0.0.1"
         imagePullPolicy: Always
-        args:
-        - vaultcontroller
         ports:
         - containerPort: 8080
           name: v-controller

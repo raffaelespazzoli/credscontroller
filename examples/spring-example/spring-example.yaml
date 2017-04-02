@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  name: spring-example
+spec:
+  triggers:
+    -
+      type: ConfigChange
+    -
+      type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - spring-example
+        from:
+          kind: ImageStreamTag
+          namespace: spring-example
+          name: 'spring-example:latest'
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: spring-example
+      annotations:
+        vaultproject.io/policies: default,spring-example
+        vaultproject.io/ttl: "24h"
+        pod.beta.kubernetes.io/init-containers: '[
+          {
+            "name": "vault-init",
+            "image": "raffaelespazzoli/vault-init:0.0.1",
+            "imagePullPolicy": "Always",
+            "ports" : [
+              {
+                "containerPort" : 18080,
+                "name" : "init-port"
+               }
+            ],
+            "env": [
+              {
+                "name": "POD_NAME",
+                "valueFrom": {"fieldRef": {"fieldPath": "metadata.name"}}
+              },
+              {
+                "name": "POD_IP",
+                "valueFrom": {"fieldRef": {"fieldPath": "status.podIP"}}
+              },              
+              {
+                "name": "POD_NAMESPACE",
+                "valueFrom": {"fieldRef": {"fieldPath": "metadata.namespace"}}
+              },
+              {
+                "name": "VAULT_CACERT",
+                "value": "/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt"
+              },                                           
+              {
+                "name": "VAULT_ADDR",
+                "value": "https://vault.vault-controller.svc.cluster.local:8200"
+              },
+              {
+                "name": "VAULT_CONTROLLER_ADDR",
+                "value": "https://vault-controller.vault-controller.svc.cluster.local:8080"
+              },
+              {
+                "name": "VAULT_CONTROLLER_CACERT",
+                "value": "/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt"
+              },
+              {
+                "name": "VAULT_INIT_PORT",
+                "value": "18080"
+              },
+              {
+                "name": "LOG_LEVEL",
+                "value": "debug"
+              }                             
+            ],
+            "volumeMounts": [
+              {
+                "name": "vault-token",
+                "mountPath": "/var/run/secrets/vaultproject.io"
+              }
+            ]
+          }
+        ]'        
+    spec:
+      containers:
+        - name: spring-example
+          image: "spring-example/spring-example:latest"
+          imagePullPolicy: Always
+          env:
+            - name: "VAULT_CACERT"
+              value: "/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt"              
+            - name: "VAULT_HOST"
+              value: "vault.vault-controller.svc.cluster.local"
+            - name: "VAULT_PORT"
+              value: "8200"
+            - name: "VAULT_TOKEN_FILE"
+              value: "/var/run/secrets/vaultproject.io/secret.json"                            
+#             determine the context of the generic backend  
+            - name: SPRING_CLOUD_VAULT_GENERIC_APPLICATION_NAME
+              value: spring-example 
+            - name: VAULT_TRUSTSTORE
+              value: /tmp/vault.jks                                          
+          volumeMounts:
+            - name: vault-token
+              mountPath: "/var/run/secrets/vaultproject.io"
+      volumes:
+        - name: vault-token
+          emptyDir:
+            medium: Memory

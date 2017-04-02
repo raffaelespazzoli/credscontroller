@@ -37,8 +37,6 @@ spec:
         - server
         - -log-level=debug    
         env:
-#        - name: VAULT_DEV_ROOT_TOKEN_ID
-#          value: vault-root-token
         - name: VAULT_LOCAL_CONFIG
           valueFrom:
             configMapKeyRef:
@@ -49,7 +47,17 @@ spec:
           mountPath: /vault-file-backend
           readOnly: false
         - name: vault-cert
-          mountPath: /var/run/secrets/kubernetes.io/certs                   
+          mountPath: /var/run/secrets/kubernetes.io/certs
+        livenessProbe:
+          httpGet:
+            path: 'v1/sys/health?standbyok=true&standbycode=200&sealedcode=200&uninitcode=200'
+            port: 8200
+            scheme: HTTPS
+        readinessProbe:
+          httpGet:
+            path: 'v1/sys/health?standbyok=true&standbycode=200&sealedcode=200&uninitcode=200'
+            port: 8200
+            scheme: HTTPS                                        
       volumes:
       - name: vault-file-backend
         persistentVolumeClaim:
