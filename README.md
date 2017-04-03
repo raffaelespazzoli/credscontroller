@@ -2,7 +2,7 @@
 
 This project implements the workflow illustrated in the following picture
 
-![Vault Controller Flow](../media/vault-controller-raf.png)
+![Vault Controller Flow](./media/vault-controller-raf.png)
 
 1. An Init container requests a wrapped token from the Vault Controller
 2. The Vault Controller retrieves the Pod details from the Kubernetes API server
@@ -19,10 +19,10 @@ This project is based on Kelsey Hightower Kubernetes - Vault integration [proof 
 
 There is a need to improve how credential are managed in Kubernetes. Credentials are supposed to be managed with secretes but secrets have some limitations. here is a secret threat model and relative needed security controls:
 
-1. secret must be stored securely. Secrets should be encrypted when at rest.
-2. secret must be transmitted securely among the platform components and the final consumer. Secrets should be encrypted when in transit.
-3. secret should be visible only to subjects who have a need to know reason. In Kubernetes and Openshift it is relatively easy to get a view permission on secret, more granular control is needed there.
-4. secret should not be accessible when in use. Today, because secrets are provisioned via a mounted file system, a node administrator can see all secrets of all pods running on that node. 
+1. Secrets must be stored securely. Secrets should be encrypted when at rest.
+2. Secrets must be transmitted securely among the platform components and the final consumer. Secrets should be encrypted when in transit.
+3. Secrets should be visible only to subjects who have a need to know reason. In Kubernetes and Openshift it is relatively easy to get a view permission on secret, more granular control is needed there.
+4. Secrets should not be accessible when in use. Today, because secrets are provisioned via a mounted file system, a node administrator can see all secrets of all pods running on that node. 
 
 This orchestration attempts to mitigate all the above threats. See the detailed document for an in depth explanation.
 
@@ -34,10 +34,10 @@ This orchestration attempts to mitigate all the above threats. See the detailed 
 3. move the authorization labels to a custom API object so that the pod author cannot authorize his pods - in progress
 4. support the case where the init-container retrieves the secret as opposed to just a wrapped token that can get the secret (for legacy apps that cannot be modified to talk to Vault - in progress
 5. add a spring vault example(s) - in progress
-6. refactor to single command with cobra and viper- done
+6. refactor code to be more cloud friendly: single CLI with [cobra](https://github.com/spf13/cobra) CLI management and [viper](https://github.com/spf13/viper) properties management - done
 
 # Requirements
-You need [vault CLI](https://www.vaultproject.io/docs/install/) installed on your machine
+You need the [Vault CLI](https://www.vaultproject.io/docs/install/) installed on your machine.
 
 # Create a new project
 ```
@@ -70,9 +70,9 @@ We will assume that the KEYS environment variable contains the key necessary to 
 
 For example:
 
-`export KEYS=M+yDmSrNpFrLuvPYp0q1YTvA+lMaQ6fs0p89i2aKjos=`
+`export KEYS=9++8KEDd72S3aGc0zaY9JW11tnQRDTEkCZWMHK2D0CM=`
 
-`export ROOT_TOKEN=8f98666d-f2b3-6756-625e-531744b5101e`
+`export ROOT_TOKEN=c30909da-a713-94bf-bf6e-46180ef79a64`
 
 ```
 vault unseal -tls-skip-verify $KEYS
@@ -80,7 +80,7 @@ vault unseal -tls-skip-verify $KEYS
 
 # Install Vault Controller
 
-deploy the vault controller
+Deploy the vault controller
 ```
 oc create secret generic vault-controller --from-literal vault-token=$ROOT_TOKEN
 oc adm policy add-cluster-role-to-user view system:serviceaccount:vault-controller:default

@@ -28,8 +28,15 @@ var vaultcontrollerCmd = &cobra.Command{
 	Short: "starts the creds controller with vault integration",
 	Long:  "starts creds controller to receive credential requests with integration with vault",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Print: " + strings.Join(args, " "))
-		fmt.Println("vaultcontroller called")
+		log.Debugln("calling vault-controller with")
+		log.Debugln("vault-addr: " + viper.GetString("vault-addr"))
+		log.Debugln("vault-cacert: " + viper.GetString("vault-cacert"))
+		log.Debugln("log-level: " + viper.GetString("log-level"))
+		log.Debugln("vault-token: " + viper.GetString("vault-token"))
+		log.Debugln("vault-wrap-ttl: " + viper.GetString("vault-wrap-ttl"))
+		log.Debugln("vault-controller-key: " + viper.GetString("vault-controller-key"))
+		log.Debugln("vault-controller-cert: " + viper.GetString("vault-controller-cert"))
+		log.Debugln("vault-controller-port: " + viper.GetString("vault-controller-port"))
 		vaultcontroller.RunVaultController()
 	},
 }
