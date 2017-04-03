@@ -1,8 +1,8 @@
 # Vault-based Credential Management Workflow
 
-This example will showcase the workflow illustrated in the following picture
+This project implements the workflow illustrated in the following picture
 
-![Vault Controller Flow](../images/vault-controller-raf.png)
+![Vault Controller Flow](../media/vault-controller-raf.png)
 
 1. An Init container requests a wrapped token from the Vault Controller
 2. The Vault Controller retrieves the Pod details from the Kubernetes API server
@@ -13,8 +13,31 @@ This example will showcase the workflow illustrated in the following picture
 7. Another container in the Pod reads the token from the token file.
 8. Another container in the Pod renews the token to keep it from expiring.
 
+This project is based on Kelsey Hightower Kubernetes - Vault integration [proof of concept](https://github.com/kelseyhightower/vault-controller)
+
+# Motivation
+
+There is a need to improve how credential are managed in Kubernetes. Credentials are supposed to be managed with secretes but secrets have some limitations. here is a secret threat model and relative needed security controls:
+
+1. secret must be stored securely. Secrets should be encrypted when at rest.
+2. secret must be transmitted securely among the platform components and the final consumer. Secrets should be encrypted when in transit.
+3. secret should be visible only to subjects who have a need to know reason. In Kubernetes and Openshift it is relatively easy to get a view permission on secret, more granular control is needed there.
+4. secret should not be accessible when in use. Today, because secrets are provisioned via a mounted file system, a node administrator can see all secrets of all pods running on that node. 
+
+This orchestration attempts to mitigate all the above threats. See the detailed document for an in depth explanation.
+
+
+# Improvements 
+
+1. secure all connections with SSL - done
+2. use an in memory emptyDir to not leave traces of the secret in the node filesystem - done
+3. move the authorization labels to a custom API object so that the pod author cannot authorize his pods - in progress
+4. support the case where the init-container retrieves the secret as opposed to just a wrapped token that can get the secret (for legacy apps that cannot be modified to talk to Vault - in progress
+5. add a spring vault example(s) - in progress
+6. refactor to single command with cobra and viper- done
+
 # Requirements
-you need vault CLI installed on your machine
+You need [vault CLI](https://www.vaultproject.io/docs/install/) installed on your machine
 
 # Create a new project
 ```
@@ -24,8 +47,8 @@ oc new-project vault-controller
 # Install Vault
 ```
 oc adm policy add-scc-to-user anyuid -z default
-oc create configmap vault-config --from-file=vault-config=./vault-config.json
-oc create -f vault.yaml
+oc create configmap vault-config --from-file=vault-config=./openshift/vault-config.json
+oc create -f ./openshift/vault.yaml
 oc create route passthrough vault --port=8200 --service=vault
 ```
 # Initialize Vault
@@ -48,10 +71,8 @@ We will assume that the KEYS environment variable contains the key necessary to 
 For example:
 
 `export KEYS=M+yDmSrNpFrLuvPYp0q1YTvA+lMaQ6fs0p89i2aKjos=`
-`export KEYS=FP3BcfzyE6lIVlMdMKxJGqGVlH+bxCSZO+wwTl1qwiI=`
 
 `export ROOT_TOKEN=8f98666d-f2b3-6756-625e-531744b5101e`
-`export ROOT_TOKEN=1d25e02b-0495-2ef4-6344-920f8c024153`
 
 ```
 vault unseal -tls-skip-verify $KEYS
@@ -63,19 +84,10 @@ deploy the vault controller
 ```
 oc create secret generic vault-controller --from-literal vault-token=$ROOT_TOKEN
 oc adm policy add-cluster-role-to-user view system:serviceaccount:vault-controller:default
-oc create -f vault-controller.yaml
+oc create -f ./openshift/vault-controller.yaml
 ```
-# Deploy the Example
-```
-oc create -f vault-example.yaml
-```
+You can now start using this orchestration to provision secrets. See also the following examples:
 
+1. [spring-based vault-aware application](./examples/spring-example/README.md)
+2. spring-based vault-unaware (legacy) application
 
-# my improvements
-
-1. secure all connections with SSL
-2. use an in memory emptyDir to not leave traces of the secret in the node filesystem - done
-3. move the authorization labels to a custom API object so that the pod author cannot authorize his pods.
-4. support the case where the init-container retrieves the secret as opposed to just a wrapped token that can get the secret (for legacy apps that cannot be modified to talk to Vault
-5. add a spring vault example
-6. refactor to single command

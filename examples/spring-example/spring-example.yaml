@@ -27,11 +27,12 @@ spec:
         pod.beta.kubernetes.io/init-containers: '[
           {
             "name": "vault-init",
-            "image": "raffaelespazzoli/vault-init:0.0.1",
+            "image": "raffaelespazzoli/credscontroller:0.0.1",
+            "args": ["vault-init"],
             "imagePullPolicy": "Always",
             "ports" : [
               {
-                "containerPort" : 18080,
+                "containerPort" : 8443,
                 "name" : "init-port"
                }
             ],
@@ -66,7 +67,7 @@ spec:
               },
               {
                 "name": "VAULT_INIT_PORT",
-                "value": "18080"
+                "value": "8443"
               },
               {
                 "name": "LOG_LEVEL",
