@@ -111,7 +111,7 @@ func RunVaultController() {
 
 	http.Handle("/token", handler{tokenRequestHandler})
 	go func() {
-		log.Fatalln(http.ListenAndServeTLS(viper.GetString("vault-controller-port"), viper.GetString("vault-controller-cert"), viper.GetString("vault-controller-key"), nil))
+		log.Fatalln(http.ListenAndServeTLS(viper.GetString("vault-controller-addr"), viper.GetString("vault-controller-cert"), viper.GetString("vault-controller-key"), nil))
 	}()
 
 	log.Infoln("Listening for token requests.")

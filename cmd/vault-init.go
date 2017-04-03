@@ -19,7 +19,6 @@ import (
 	"github.com/raffaelespazzoli/credscontroller/vaultinit"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"strings"
 )
 
 // init-credsCmd represents the init-creds command
@@ -28,17 +27,16 @@ var initcredsCmd = &cobra.Command{
 	Short: "vault-init retrieves credentials managed by the creds controller",
 	Long:  `starts the credential retrieval process, currently supports integration with vault`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Debugln("calling vault-init with")
-		log.Debugln("vault-addr: " + viper.GetString("vault-addr"))
-		log.Debugln("vault-cacert: " + viper.GetString("vault-cacert"))
-		log.Debugln("log-level: " + viper.GetString("log-level"))
-		log.Debugln("pod-name: " + viper.GetString("pod-name"))
-		log.Debugln("pod-ip: " + viper.GetString("pod-ip"))
-		log.Debugln("pod-namespace: " + viper.GetString("pod-namespace"))
-		log.Debugln("vault-controller-addr: " + viper.GetString("vault-controller-addr"))
-		log.Debugln("vault-controller-cacert: " + viper.GetString("vault-controller-cacert"))
-		log.Debugln("creds-init-port: " + viper.GetString("creds-init-port"))
-		log.Debugln("called")
+		fmt.Println("calling vault-init with")
+		fmt.Println("vault-addr: " + viper.GetString("vault-addr"))
+		fmt.Println("vault-cacert: " + viper.GetString("vault-cacert"))
+		fmt.Println("log-level: " + viper.GetString("log-level"))
+		fmt.Println("pod-name: " + viper.GetString("pod-name"))
+		fmt.Println("pod-ip: " + viper.GetString("pod-ip"))
+		fmt.Println("pod-namespace: " + viper.GetString("pod-namespace"))
+		fmt.Println("vault-controller-addr: " + viper.GetString("vault-controller-addr"))
+		fmt.Println("vault-controller-cacert: " + viper.GetString("vault-controller-cacert"))
+		fmt.Println("creds-init-port: " + viper.GetString("creds-init-port"))
 		vaultinit.RunInitCreds()
 	},
 }

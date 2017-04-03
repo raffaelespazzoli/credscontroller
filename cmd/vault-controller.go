@@ -19,7 +19,6 @@ import (
 	"github.com/raffaelespazzoli/credscontroller/vaultcontroller"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"strings"
 )
 
 // vault-controllerCmd represents the vault-controller command
@@ -28,15 +27,15 @@ var vaultcontrollerCmd = &cobra.Command{
 	Short: "starts the creds controller with vault integration",
 	Long:  "starts creds controller to receive credential requests with integration with vault",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Debugln("calling vault-controller with")
-		log.Debugln("vault-addr: " + viper.GetString("vault-addr"))
-		log.Debugln("vault-cacert: " + viper.GetString("vault-cacert"))
-		log.Debugln("log-level: " + viper.GetString("log-level"))
-		log.Debugln("vault-token: " + viper.GetString("vault-token"))
-		log.Debugln("vault-wrap-ttl: " + viper.GetString("vault-wrap-ttl"))
-		log.Debugln("vault-controller-key: " + viper.GetString("vault-controller-key"))
-		log.Debugln("vault-controller-cert: " + viper.GetString("vault-controller-cert"))
-		log.Debugln("vault-controller-port: " + viper.GetString("vault-controller-port"))
+		fmt.Println("calling vault-controller with")
+		fmt.Println("vault-addr: " + viper.GetString("vault-addr"))
+		fmt.Println("vault-cacert: " + viper.GetString("vault-cacert"))
+		fmt.Println("log-level: " + viper.GetString("log-level"))
+		fmt.Println("vault-token: " + viper.GetString("vault-token"))
+		fmt.Println("vault-wrap-ttl: " + viper.GetString("vault-wrap-ttl"))
+		fmt.Println("vault-controller-key: " + viper.GetString("vault-controller-key"))
+		fmt.Println("vault-controller-cert: " + viper.GetString("vault-controller-cert"))
+		fmt.Println("vault-controller-addr: " + viper.GetString("vault-controller-addr"))
 		vaultcontroller.RunVaultController()
 	},
 }
@@ -58,11 +57,11 @@ func init() {
 	vaultcontrollerCmd.Flags().String("vault-wrap-ttl", "120", "vault wrap token time to live")
 	vaultcontrollerCmd.Flags().String("vault-controller-key", "/var/run/secrets/kubernetes.io/certs/tls.key", "Vault-controller's private key for TLS connections")
 	vaultcontrollerCmd.Flags().String("vault-controller-cert", "/var/run/secrets/kubernetes.io/certs/tls.crt", "Vault-controller's certificate for TLS connections")
-	vaultcontrollerCmd.Flags().String("vault-controller-port", "8443", "Port at which the vault-controller will listen")
+	vaultcontrollerCmd.Flags().String("vault-controller-addr", "0.0.0.0:8443", "Port at which the vault-controller will listen")
 	viper.BindPFlag("vault-token", vaultcontrollerCmd.Flags().Lookup("vault-token"))
 	viper.BindPFlag("vault-wrap-ttl", vaultcontrollerCmd.Flags().Lookup("vault-wrap-ttl"))
 	viper.BindPFlag("vault-controller-key", vaultcontrollerCmd.Flags().Lookup("vault-controller-key"))
 	viper.BindPFlag("vault-controller-cert", vaultcontrollerCmd.Flags().Lookup("vault-controller-cert"))
-	viper.BindPFlag("vault-controller-port", vaultcontrollerCmd.Flags().Lookup("vault-controller-port"))
+	viper.BindPFlag("vault-controller-addr", vaultcontrollerCmd.Flags().Lookup("vault-controller-addr"))
 
 }

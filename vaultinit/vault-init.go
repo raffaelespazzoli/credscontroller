@@ -63,7 +63,7 @@ func createTempCerts() {
 
 	//init temp certificates
 	log.Debugln("initializing temp certificates")
-	createSelfSignedCertificate(viper.GetString("vault-controller-cacert"), keyfile, certfile)
+	createSelfSignedCertificate(viper.GetString("pod-ip"), keyfile, certfile)
 	log.Debugln("temp certificates initialized")
 
 }
