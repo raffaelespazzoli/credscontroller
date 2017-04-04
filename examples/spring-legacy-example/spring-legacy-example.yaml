@@ -85,7 +85,7 @@ spec:
               },
               {
                 "name": "CREDS_FILE",
-                "value": "/var/run/secrets/vaultproject.io/secret.properties"
+                "value": "/var/run/secrets/vaultproject.io/secret.json"
               },              
               {
                 "name": "LOG_LEVEL",
@@ -118,7 +118,7 @@ spec:
             - name: SPRING_CLOUD_VAULT_GENERIC_APPLICATION_NAME
               value: spring-legacy-example  
             - name: SECRET_FILE
-              value: "/var/run/secrets/vaultproject.io/secret.properties"                                                       
+              value: "/var/run/secrets/vaultproject.io/secret.json"                                                       
           volumeMounts:
             - name: vault-token
               mountPath: "/var/run/secrets/vaultproject.io"

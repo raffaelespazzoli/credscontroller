@@ -111,6 +111,7 @@ func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(500)
 			return
 		}
+		log.Infoln("wrote secret %s", viper.GetString("creds-file"))
 	} else {
 		err = json.NewEncoder(f).Encode(&secret)
 		if err != nil {
@@ -118,7 +119,8 @@ func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(500)
 			return
 		}
+		log.Infoln("wrote token %s", viper.GetString("creds-file"))
 	}
-	log.Printf("wrote %s", viper.GetString("creds-file"))
+
 	w.WriteHeader(200)
 }
