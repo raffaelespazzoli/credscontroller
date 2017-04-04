@@ -89,5 +89,5 @@ oc create -f ./openshift/vault-controller.yaml
 You can now start using this orchestration to provision secrets. See also the following examples:
 
 1. [spring-based vault-aware application](./examples/spring-example/README.md)
-2. spring-based vault-unaware (legacy) application
+2. [spring-based vault-unaware (legacy) application] (./examples/spring-legacy-example/README.md)
 
