@@ -15,6 +15,7 @@ import (
 	"encoding/json"
 	"github.com/hashicorp/vault/api"
 	"github.com/spf13/viper"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -104,7 +105,7 @@ func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		body := response.Body
 		defer body.Close()
-		lenght, err := io.Copy(f, body)
+		_, err = io.Copy(f, body)
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(500)
