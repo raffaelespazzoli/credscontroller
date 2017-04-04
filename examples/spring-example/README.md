@@ -30,4 +30,10 @@ oc adm pod-network join-projects --to vault-controller spring-example
 deploy the spring example app
 ```
 oc create -f ./examples/spring-example/spring-example.yaml
+oc expose svc spring-example
+```
+now you should be able to call a service that returns the secret
+```
+export SPRING_EXAMPLE_ADDR=http://`oc get route | grep -m1 spring | awk '{print $2}'`
+curl $SPRING_EXAMPLE_ADDR/secret
 ```

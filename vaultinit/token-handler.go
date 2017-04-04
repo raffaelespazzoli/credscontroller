@@ -93,11 +93,30 @@ func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer f.Close()
 
-	err = json.NewEncoder(f).Encode(&secret)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(500)
-		return
+	if viper.GetString("retrieve-secret") != "" {
+		client.SetToken(secret.Auth.ClientToken)
+		request := client.NewRequest("get", viper.GetString("retrieve-secret"))
+		response, err := client.RawRequest(request)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(500)
+			return
+		}
+		body := response.Body
+		defer body.Close()
+		lenght, err := io.Copy(f, body)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(500)
+			return
+		}
+	} else {
+		err = json.NewEncoder(f).Encode(&secret)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(500)
+			return
+		}
 	}
 	log.Printf("wrote %s", viper.GetString("creds-file"))
 	w.WriteHeader(200)

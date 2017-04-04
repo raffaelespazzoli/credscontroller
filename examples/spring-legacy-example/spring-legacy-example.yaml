@@ -1,20 +1,48 @@
 apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: spring-legacy-example
+  name: spring-legacy-example 
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: spring-legacy-example
+---
+apiVersion: v1
 kind: DeploymentConfig
 metadata:
-  name: vault-example
+  name: spring-legacy-example
 spec:
+  triggers:
+    -
+      type: ConfigChange
+    -
+      type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - spring-legacy-example
+        from:
+          kind: ImageStreamTag
+          namespace: spring-legacy-example
+          name: 'spring-legacy-example:latest'
   replicas: 1
   template:
     metadata:
       labels:
-        app: vault-example
+        app: spring-legacy-example
       annotations:
-        vaultproject.io/policies: default
+        vaultproject.io/policies: default,spring-legacy-example
         vaultproject.io/ttl: "24h"
         pod.beta.kubernetes.io/init-containers: '[
           {
             "name": "vault-init",
-            "image": "raffaelespazzoli/vault-init:0.0.1",
+            "image": "raffaelespazzoli/credscontroller:0.0.1",
+            "args": ["vault-init"],
             "imagePullPolicy": "Always",
             "ports" : [
               {
@@ -56,6 +84,10 @@ spec:
                 "value": "8443"
               },
               {
+                "name": "CREDS_FILE",
+                "value": "/var/run/secrets/vaultproject.io/secret.properties"
+              },              
+              {
                 "name": "LOG_LEVEL",
                 "value": "debug"
               }                             
@@ -67,17 +99,26 @@ spec:
               }
             ]
           }
-        ]'
+        ]'        
     spec:
       containers:
-        - name: vault-example
-          image: "raffaelespazzoli/spring-vault-example:0.0.1"
+        - name: spring-legacy-example
+          image: "spring-legacy-example/spring-legacy-example:latest"
           imagePullPolicy: Always
           env:
             - name: "VAULT_CACERT"
               value: "/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt"              
-            - name: "VAULT_ADDR"
-              value: "https://vault.vault-controller.svc.cluster.local:8200"                            
+            - name: "VAULT_HOST"
+              value: "vault.vault-controller.svc.cluster.local"
+            - name: "VAULT_PORT"
+              value: "8200"
+            - name: "VAULT_TOKEN_FILE"
+              value: "/var/run/secrets/vaultproject.io/secret.json"                            
+#             determine the context of the generic backend  
+            - name: SPRING_CLOUD_VAULT_GENERIC_APPLICATION_NAME
+              value: spring-legacy-example  
+            - name: SECRET_FILE
+              value: "/var/run/secrets/vaultproject.io/secret.properties"                                                       
           volumeMounts:
             - name: vault-token
               mountPath: "/var/run/secrets/vaultproject.io"

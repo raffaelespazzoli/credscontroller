@@ -37,6 +37,7 @@ var initcredsCmd = &cobra.Command{
 		fmt.Println("vault-controller-addr: " + viper.GetString("vault-controller-addr"))
 		fmt.Println("vault-controller-cacert: " + viper.GetString("vault-controller-cacert"))
 		fmt.Println("creds-init-port: " + viper.GetString("creds-init-port"))
+		fmt.Println("retrive-secret: " + viper.GetString("retrieve-secret"))
 		vaultinit.RunInitCreds()
 	},
 }
@@ -62,6 +63,7 @@ func init() {
 	initcredsCmd.Flags().String("creds-init-port", "8443", "port at which to listen for vault controller incoming connections")
 	initcredsCmd.Flags().String("tmp-cert-dir", "/tmp", "directory where temp certs will be created")
 	initcredsCmd.Flags().String("creds-file", "/var/run/secrets/vaultproject.io/secret.json", "file where the credentials will be stored")
+	initcredsCmd.Flags().String("retrieve-secret", "", "if set, vault-init will retrieve the secret and save it in creds-file, instead of just saving the vault token")
 	viper.BindPFlag("pod-name", initcredsCmd.Flags().Lookup("pod-name"))
 	viper.BindPFlag("pod-ip", initcredsCmd.Flags().Lookup("pod-ip"))
 	viper.BindPFlag("pod-namespace", initcredsCmd.Flags().Lookup("pod-namespace"))
@@ -70,5 +72,6 @@ func init() {
 	viper.BindPFlag("creds-init-port", initcredsCmd.Flags().Lookup("creds-init-port"))
 	viper.BindPFlag("tmp-cert-dir", initcredsCmd.Flags().Lookup("tmp-cert-dir"))
 	viper.BindPFlag("creds-file", initcredsCmd.Flags().Lookup("creds-file"))
+	viper.BindPFlag("retrieve-secret", initcredsCmd.Flags().Lookup("retrieve-secret"))
 
 }
