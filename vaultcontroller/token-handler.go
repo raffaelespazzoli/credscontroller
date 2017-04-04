@@ -18,7 +18,9 @@ import (
 	"fmt"
 	"github.com/hashicorp/vault/api"
 	"io"
+	kapi "k8s.io/client-go/pkg/api"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -101,13 +103,23 @@ func tokenRequestHandler(w io.Writer, r *http.Request) (int, error) {
 	if err != nil {
 		return 500, fmt.Errorf("error parsing wrapped token for pod (%s), error: %s", name, err)
 	}
+
+	var initContainers []kapi.Container
+	err = json.Unmarshal([]byte(pod.Annotations["pod.alpha.kubernetes.io/init-containers"]), &initContainers)
+	if err != nil {
+		log.Fatalf("Failed to Unmarshall: %s", err)
+	}
+
+	portStr := strconv.Itoa(int(initContainers[0].Ports[0].ContainerPort))
+	log.Printf("Container Port in Init Container: %s", portStr)
+
 	//for some reason this doesn work...
 	//	log.Debug("pod.Name: ", pod.Name)
 	//	log.Debug("len pod.Spec.InitContainers: ", len(pod.Spec.InitContainers))
 	//	log.Debug("len pod.Spec.InitContainers[0].Ports: ", len(pod.Spec.InitContainers[0].Ports))
 	//	log.Debug("pod.Spec.InitContainers[0].Ports[0].ContainerPort: ", pod.Spec.InitContainers[0].Ports[0].ContainerPort)
 	//	port := pod.Spec.InitContainers[0].Ports[0].ContainerPort
-	go pushWrappedTokenTo(pod.Status.PodIP, "8443", &wrappedToken)
+	go pushWrappedTokenTo(pod.Status.PodIP, portStr, &wrappedToken)
 
 	return 202, nil
 }

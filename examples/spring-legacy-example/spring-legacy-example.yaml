@@ -86,7 +86,11 @@ spec:
               {
                 "name": "CREDS_FILE",
                 "value": "/var/run/secrets/vaultproject.io/secret.json"
-              },              
+              },
+              {
+                "name": "RETRIEVE_SECRET",
+                "value": "/secret/spring-legacy-example"
+              },                             
               {
                 "name": "LOG_LEVEL",
                 "value": "debug"
@@ -105,18 +109,7 @@ spec:
         - name: spring-legacy-example
           image: "spring-legacy-example/spring-legacy-example:latest"
           imagePullPolicy: Always
-          env:
-            - name: "VAULT_CACERT"
-              value: "/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt"              
-            - name: "VAULT_HOST"
-              value: "vault.vault-controller.svc.cluster.local"
-            - name: "VAULT_PORT"
-              value: "8200"
-            - name: "VAULT_TOKEN_FILE"
-              value: "/var/run/secrets/vaultproject.io/secret.json"                            
-#             determine the context of the generic backend  
-            - name: SPRING_CLOUD_VAULT_GENERIC_APPLICATION_NAME
-              value: spring-legacy-example  
+          env: 
             - name: SECRET_FILE
               value: "/var/run/secrets/vaultproject.io/secret.json"                                                       
           volumeMounts:

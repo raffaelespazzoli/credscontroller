@@ -95,6 +95,7 @@ func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer f.Close()
 
 	if viper.GetString("retrieve-secret") != "" {
+		log.Debugln("retrieving secret: %s", viper.GetString("retrieve-secret"))
 		client.SetToken(secret.Auth.ClientToken)
 		request := client.NewRequest("get", viper.GetString("retrieve-secret"))
 		response, err := client.RawRequest(request)
@@ -113,6 +114,7 @@ func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Infoln("wrote secret %s", viper.GetString("creds-file"))
 	} else {
+		log.Debugln("no secret to rertieve saving the token")
 		err = json.NewEncoder(f).Encode(&secret)
 		if err != nil {
 			log.Println(err)
