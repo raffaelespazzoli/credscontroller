@@ -15,7 +15,6 @@ import (
 	"encoding/json"
 	"github.com/hashicorp/vault/api"
 	"github.com/spf13/viper"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -25,30 +24,7 @@ type tokenHandler struct {
 	vaultAddr string
 }
 
-func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	_, err := os.Stat(viper.GetString("creds-file"))
-	if !os.IsNotExist(err) {
-		log.Println("Token file already exists")
-		w.WriteHeader(409)
-		return
-	}
-
-	var swi api.SecretWrapInfo
-	data, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(500)
-		return
-	}
-	r.Body.Close()
-
-	err = json.Unmarshal(data, &swi)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(500)
-		return
-	}
-
+func (h tokenHandler) createAPIClient() (*api.Client, error) {
 	//creates the vault config
 	log.Debugln("creating vault config")
 	vConfig := api.Config{
@@ -57,11 +33,10 @@ func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	tlsConfig := api.TLSConfig{
 		CACert: viper.GetString("vault-cacert"),
 	}
-	err = vConfig.ConfigureTLS(&tlsConfig)
+	err := vConfig.ConfigureTLS(&tlsConfig)
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(500)
-		return
+		log.Warnln(err)
+		return nil, err
 	}
 	log.Debugln("created vault config")
 
@@ -69,14 +44,46 @@ func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Debugln("creating vault client")
 	client, err := api.NewClient(&vConfig)
 	if err != nil {
-		log.Println(err)
+		log.Warnln(err)
+		return client, err
+	}
+	client.SetAddress(h.vaultAddr)
+	log.Debugln("created vault client")
+	return client, err
+}
+
+func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	_, err := os.Stat(viper.GetString("creds-file"))
+	if !os.IsNotExist(err) {
+		log.Warnln("Token file already exists")
+		w.WriteHeader(409)
+		return
+	}
+
+	var swi api.SecretWrapInfo
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Warnln(err)
 		w.WriteHeader(500)
 		return
 	}
-	log.Debugln("created vault client")
+	r.Body.Close()
+
+	err = json.Unmarshal(data, &swi)
+	if err != nil {
+		log.Warnln(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	client, err := h.createAPIClient()
+	if err != nil {
+		log.Warnln(err)
+		w.WriteHeader(500)
+		return
+	}
 
 	client.SetToken(swi.Token)
-	client.SetAddress(h.vaultAddr)
 
 	// Vault knows to unwrap the client token if the token to unwrap is empty.
 	secret, err := client.Logical().Unwrap("")
@@ -86,42 +93,50 @@ func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f, err := os.Create(viper.GetString("creds-file"))
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(500)
-		return
-	}
-	defer f.Close()
-
 	if viper.GetString("retrieve-secret") != "" {
-		log.Debugln("retrieving secret: %s", viper.GetString("retrieve-secret"))
+		log.Debugln("retrieving secret: ", viper.GetString("retrieve-secret"))
+		//		client, err = h.createAPIClient()
+		//		if err != nil {
+		//			log.Warnln(err)
+		//			w.WriteHeader(500)
+		//			return
+		//		}
 		client.SetToken(secret.Auth.ClientToken)
-		request := client.NewRequest("get", viper.GetString("retrieve-secret"))
-		response, err := client.RawRequest(request)
+		log.Debugln("1")
+		secret, err = client.Logical().Read(viper.GetString("retrieve-secret"))
+		log.Debugln("2")
+		if err != nil {
+			log.Debugln("3")
+			log.Warnln(err)
+			w.WriteHeader(500)
+			return
+		}
+		log.Debugln("executed secret request", client.Address(), viper.GetString("retrieve-secret"))
+		f, err := os.Create(viper.GetString("creds-file"))
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(500)
 			return
 		}
-		body := response.Body
-		defer body.Close()
-		_, err = io.Copy(f, body)
-		if err != nil {
-			log.Println(err)
-			w.WriteHeader(500)
-			return
-		}
-		log.Infoln("wrote secret %s", viper.GetString("creds-file"))
+		defer f.Close()
+		err = json.NewEncoder(f).Encode(&secret.Data)
+		log.Infoln("wrote secret: ", viper.GetString("creds-file"))
 	} else {
 		log.Debugln("no secret to rertieve saving the token")
-		err = json.NewEncoder(f).Encode(&secret)
+		f, err := os.Create(viper.GetString("creds-file"))
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(500)
 			return
 		}
-		log.Infoln("wrote token %s", viper.GetString("creds-file"))
+		defer f.Close()
+		err = json.NewEncoder(f).Encode(&secret)
+		if err != nil {
+			log.Warnln(err)
+			w.WriteHeader(500)
+			return
+		}
+		log.Infoln("wrote token: ", viper.GetString("creds-file"))
 	}
 
 	w.WriteHeader(200)

@@ -89,7 +89,7 @@ spec:
               },
               {
                 "name": "RETRIEVE_SECRET",
-                "value": "/secret/spring-legacy-example"
+                "value": "secret/spring-legacy-example"
               },                             
               {
                 "name": "LOG_LEVEL",
@@ -111,7 +111,9 @@ spec:
           imagePullPolicy: Always
           env: 
             - name: SECRET_FILE
-              value: "/var/run/secrets/vaultproject.io/secret.json"                                                       
+              value: "/var/run/secrets/vaultproject.io/secret.json"    
+            - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
+              value: "DEBUG"                                                                  
           volumeMounts:
             - name: vault-token
               mountPath: "/var/run/secrets/vaultproject.io"

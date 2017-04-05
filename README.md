@@ -13,28 +13,18 @@ This project implements the workflow illustrated in the following picture
 7. Another container in the Pod reads the token from the token file.
 8. Another container in the Pod renews the token to keep it from expiring.
 
-This project is based on Kelsey Hightower Kubernetes - Vault integration [proof of concept](https://github.com/kelseyhightower/vault-controller)
+This project is based on Kelsey Hightower's Kubernetes - Vault integration [proof of concept](https://github.com/kelseyhightower/vault-controller)
 
 # Motivation
 
-There is a need to improve how credential are managed in Kubernetes. Credentials are supposed to be managed with secretes but secrets have some limitations. here is a secret threat model and relative needed security controls:
+There is a need to improve how credentials are managed in Kubernetes. Credentials are supposed to be managed with secretes but secrets have some limitations. here is a secret threat model and relative needed security controls:
 
 1. Secrets must be stored securely. Secrets should be encrypted when at rest.
 2. Secrets must be transmitted securely among the platform components and the final consumer. Secrets should be encrypted when in transit.
 3. Secrets should be visible only to subjects who have a need to know reason. In Kubernetes and Openshift it is relatively easy to get a view permission on secret, more granular control is needed there.
 4. Secrets should not be accessible when in use. Today, because secrets are provisioned via a mounted file system, a node administrator can see all secrets of all pods running on that node. 
 
-This orchestration attempts to mitigate all the above threats. See the detailed document for an in depth explanation.
-
-
-# Improvements 
-
-1. secure all connections with SSL - done
-2. use an in memory emptyDir to not leave traces of the secret in the node filesystem - done
-3. move the authorization labels to a custom API object so that the pod author cannot authorize his pods - in progress
-4. support the case where the init-container retrieves the secret as opposed to just a wrapped token that can get the secret (for legacy apps that cannot be modified to talk to Vault - in progress
-5. add a spring vault example(s) - in progress
-6. refactor code to be more cloud friendly: single CLI with [cobra](https://github.com/spf13/cobra) CLI management and [viper](https://github.com/spf13/viper) properties management - done
+This project implements an orchestration which tries to mitigate all the above issues. See the detailed document for an in depth explanation.
 
 # Requirements
 You need the [Vault CLI](https://www.vaultproject.io/docs/install/) installed on your machine.
@@ -86,8 +76,21 @@ oc create secret generic vault-controller --from-literal vault-token=$ROOT_TOKEN
 oc adm policy add-cluster-role-to-user view system:serviceaccount:vault-controller:default
 oc create -f ./openshift/vault-controller.yaml
 ```
-You can now start using this orchestration to provision secrets. See also the following examples:
+You can now start using this orchestration to provision secrets. 
+
+# Examples
+
+See also the following examples:
 
 1. [spring-based vault-aware application](./examples/spring-example/README.md)
-2. [spring-based vault-unaware (legacy) application] (./examples/spring-legacy-example/README.md)
+2. [spring-based vault-unaware (legacy) application](./examples/spring-legacy-example/README.md)
+
+# Further Improvements 
+
+1. secure all connections with SSL - done
+2. use an in memory emptyDir to not leave traces of the secret in the node filesystem - done
+3. move the authorization labels to a custom API object so that the pod author cannot authorize his pods - in progress
+4. support the case where the init-container retrieves the secret as opposed to just a wrapped token that can get the secret (for legacy apps that cannot be modified to talk to Vault - done
+5. add a spring vault example(s) - done
+6. refactor code to be more cloud friendly: single CLI with [cobra](https://github.com/spf13/cobra) CLI management and [viper](https://github.com/spf13/viper) properties management - done
 
