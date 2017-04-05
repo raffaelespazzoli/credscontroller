@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -21,12 +22,13 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
+@AutoConfigureBefore({ SpringLegacyExampleApplication.class })
 @Lazy(false)
 public class InitConfiguration {
 
 	private Log log = LogFactory.getLog(InitConfiguration.class);
 
-	@Value("${vault.token.file:/var/run/secrets/vaultproject.io}")
+	@Value("${secret.file:/var/run/secrets/vaultproject.io/secret.json}")
 	String secretFile;
 
 	@Autowired
@@ -38,9 +40,10 @@ public class InitConfiguration {
 	    File from = new File(secretFile); 
 	    TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
 	    HashMap<String,Object> o = mapper.readValue(from, typeRef); 
-	    MapPropertySource vaultSecretPropertySource= new MapPropertySource("vaultSecretPropertySource", o);
+	    MapPropertySource secretPropertySource= new MapPropertySource("secretPropertySource", o);
 	    MutablePropertySources sources = env.getPropertySources();
-	    sources.addFirst(vaultSecretPropertySource );
-	    return vaultSecretPropertySource;
+	    sources.addFirst(secretPropertySource );
+	    log.debug("added secretPropertySource: "+ o);
+	    return secretPropertySource;
 	 }
 }
