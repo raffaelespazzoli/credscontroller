@@ -112,7 +112,19 @@ spec:
               value: "/var/run/secrets/vaultproject.io/secret.json"                            
 #             determine the context of the generic backend  
             - name: SPRING_CLOUD_VAULT_GENERIC_APPLICATION_NAME
-              value: spring-example                                           
+              value: spring-example 
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 3                                                        
           volumeMounts:
             - name: vault-token
               mountPath: "/var/run/secrets/vaultproject.io"
