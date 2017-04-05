@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @RestController
-@PropertySource("file://${secret.file}")
+//@PropertySource("file://${secret.file}")
 public class SpringLegacyExampleApplication {
 
 	public static void main(String[] args) {
