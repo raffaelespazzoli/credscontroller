@@ -34,6 +34,6 @@ oc expose svc spring-legacy-example
 ```
 now you should be able to call a service that returns the secret
 ```
-export SPRING_EXAMPLE_ADDR=http://`oc get route | grep -m1 spring | awk '{print $2}'`
-curl $SPRING_EXAMPLE_ADDR/secret
+export SPRING_LEGACY_EXAMPLE_ADDR=http://`oc get route | grep -m1 spring | awk '{print $2}'`
+curl $SPRING_LEGACY_EXAMPLE_ADDR/secret
 ```

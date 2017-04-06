@@ -122,7 +122,7 @@ func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		err = json.NewEncoder(f).Encode(&secret.Data)
 		log.Infoln("wrote secret: ", viper.GetString("creds-file"))
 	} else {
-		log.Debugln("no secret to rertieve saving the token")
+		log.Debugln("no secret to retrieve saving the token")
 		f, err := os.Create(viper.GetString("creds-file"))
 		if err != nil {
 			log.Println(err)

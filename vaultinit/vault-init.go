@@ -157,6 +157,7 @@ func RunInitCreds() {
 				break
 			case <-tokenWatcher.Events:
 				tokenWatcher.Close()
+				time.Sleep(200 * time.Millisecond)
 				close(done)
 				return
 			case err := <-tokenWatcher.Errors:
