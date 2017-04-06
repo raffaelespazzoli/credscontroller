@@ -68,7 +68,7 @@ public class VaultInitConfiguration implements InitializingBean {
 
 			return token.getToken().getToken();
 		} finally {
-			Files.deleteIfExists(Paths.get(secretFile));
+			//Files.deleteIfExists(Paths.get(secretFile));
 		}
 	}
 

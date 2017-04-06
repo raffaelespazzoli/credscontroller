@@ -21,7 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Sirupsen/logrus"
-	"github.com/fsnotify/fsnotify"
+	//	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"math/big"
@@ -29,7 +29,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path"
+	//	"path"
 	"syscall"
 	"time"
 )
@@ -104,7 +104,8 @@ func RunInitCreds() {
 	validateConfig()
 	createTempCerts()
 
-	http.Handle("/", tokenHandler{viper.GetString("vault-addr")})
+	done := make(chan bool)
+	http.Handle("/", tokenHandler{viper.GetString("vault-addr"), done})
 	go func() {
 
 		u := fmt.Sprintf("0.0.0.0:%s", viper.GetString("vault-init-port"))
@@ -126,20 +127,19 @@ func RunInitCreds() {
 	}
 
 	// Set up a file watch on the wrapped vault token.
-	tokenWatcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		log.WithFields(logrus.Fields{
-			"err": err,
-		}).Fatalln("could not create watcher")
-	}
-	err = tokenWatcher.Add(path.Dir(tokenFile))
-	if err != nil {
-		log.WithFields(logrus.Fields{
-			"err": err,
-		}).Fatalln("could not add watcher")
-	}
+	//	tokenWatcher, err := fsnotify.NewWatcher()
+	//	if err != nil {
+	//		log.WithFields(logrus.Fields{
+	//			"err": err,
+	//		}).Fatalln("could not create watcher")
+	//	}
+	//	err = tokenWatcher.Add(path.Dir(tokenFile))
+	//	if err != nil {
+	//		log.WithFields(logrus.Fields{
+	//			"err": err,
+	//		}).Fatalln("could not add watcher")
+	//	}
 
-	done := make(chan bool)
 	retryDelay := 5 * time.Second
 	go func() {
 		for {
@@ -155,13 +155,13 @@ func RunInitCreds() {
 			case <-time.After(time.Second * 30):
 				log.Infoln("token request: Timeout waiting for callback")
 				break
-			case <-tokenWatcher.Events:
-				tokenWatcher.Close()
-				time.Sleep(200 * time.Millisecond)
-				close(done)
-				return
-			case err := <-tokenWatcher.Errors:
-				log.Infof("token request: error watching the token file", err)
+				//			case <-tokenWatcher.Events:
+				//				tokenWatcher.Close()
+				//				time.Sleep(200 * time.Millisecond)
+				//				close(done)
+				//				return
+				//			case err := <-tokenWatcher.Errors:
+				//				log.Infof("token request: error watching the token file", err)
 			}
 		}
 	}()

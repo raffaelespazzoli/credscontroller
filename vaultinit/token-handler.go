@@ -22,6 +22,7 @@ import (
 
 type tokenHandler struct {
 	vaultAddr string
+	done      chan bool
 }
 
 func (h tokenHandler) createAPIClient() (*api.Client, error) {
@@ -102,11 +103,11 @@ func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		//			return
 		//		}
 		client.SetToken(secret.Auth.ClientToken)
-		log.Debugln("1")
+		//log.Debugln("1")
 		secret, err = client.Logical().Read(viper.GetString("retrieve-secret"))
-		log.Debugln("2")
+		//log.Debugln("2")
 		if err != nil {
-			log.Debugln("3")
+			//log.Debugln("3")
 			log.Warnln(err)
 			w.WriteHeader(500)
 			return
@@ -114,7 +115,7 @@ func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Debugln("executed secret request", client.Address(), viper.GetString("retrieve-secret"))
 		f, err := os.Create(viper.GetString("creds-file"))
 		if err != nil {
-			log.Println(err)
+			log.Warnln(err)
 			w.WriteHeader(500)
 			return
 		}
@@ -125,7 +126,7 @@ func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Debugln("no secret to retrieve saving the token")
 		f, err := os.Create(viper.GetString("creds-file"))
 		if err != nil {
-			log.Println(err)
+			log.Warnln(err)
 			w.WriteHeader(500)
 			return
 		}
@@ -140,4 +141,5 @@ func (h tokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(200)
+	close(h.done)
 }
