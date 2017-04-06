@@ -24,24 +24,24 @@ There is a need to improve how credentials are managed in Kubernetes. Credential
 3. Secrets should be visible only to subjects who have a need to know reason. In Kubernetes and Openshift it is relatively easy to get a view permission on secret, more granular control is needed there.
 4. Secrets should not be accessible when in use. Today, because secrets are provisioned via a mounted file system, a node administrator can see all secrets of all pods running on that node. 
 
-This project implements an orchestration which tries to mitigate all the above issues. See the detailed document for an in depth explanation.
+This project implements an orchestration which tries to mitigate all the above issues.
 
 # Use cases
 
 This project support 2 use cases:
 
 1. a vaut-aware app needs to be injected securely a token with which it can interact with Vault. This is recommended use case for green field scenarios.
-2. a vault un-aware app needs to be injected a secret. This is the recommeded use case for brown field scenarios.
+2. a vault un-aware app needs to be injected a secret. This is the recommended use case for brown field scenarios.
 
 # Threat model
 
 | attack vector  | use case 1  | use case 2  | openshift secrets  |
 |---|---|---|---|
-| reading a secret at rest  | ok  | ok  | no  |
-| reading secret in transit  | ok  | ok  | ok  |
-| reading a secret via the API  | ok  | ok  | no  |
-| reading in use from within the container (rsh)  | ok  | no  | no  |
-| reading a secret in use from the node  | ok  | no  | no  |
+| reading secrets at rest  | ok  | ok  | no  |
+| reading secrets in transit  | ok  | ok  | ok  |
+| reading secrets via the API  | ok  | ok  | no  |
+| reading secrets in use from within the container (rsh)  | ok  | no  | no  |
+| reading secrets in use from the node  | ok  | no  | no  |
 
 # Requirements
 You need the [Vault CLI](https://www.vaultproject.io/docs/install/) installed on your machine.
