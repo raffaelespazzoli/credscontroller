@@ -21,8 +21,8 @@ There is a need to improve how credentials are managed in Kubernetes. Credential
 
 1. Secrets must be stored securely. Secrets should be encrypted when at rest.
 2. Secrets must be transmitted securely among the platform components and the final consumer. Secrets should be encrypted when in transit.
-3. Secrets should be visible only to subjects who have a need to know reason. In Kubernetes and Openshift it is relatively easy to get a view permission on secret, more granular control is needed there.
-4. Secrets should not be accessible when in use. Today, because secrets are provisioned via a mounted file system, a node administrator can see all secrets of all pods running on that node. 
+3. Secrets should be visible only to subjects who have a need to know reason. In Kubernetes and Openshift it is relatively easy to get a view permission on secret, more granular control is needed there. For example a cluster admin can see the secrets of all of its tenants even if he/she clearly doesn't have a need to know.
+4. Secrets should not be accessible when in use. Today, because secrets are provisioned via a mounted file system, a node administrator can see all secrets of all pods running on that node. Also a someone who RSHs to the pod can see the secrets. 
 
 This project implements an orchestration which tries to mitigate all the above issues.
 
