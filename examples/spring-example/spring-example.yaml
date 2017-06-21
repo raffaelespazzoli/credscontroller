@@ -47,21 +47,22 @@ spec:
             "ports" : [
               {
                 "containerPort" : 8443,
-                "name" : "init-port"
+                "name" : "init-port",
+                "protocol" : "TCP"
                }
             ],
             "env": [
               {
                 "name": "POD_NAME",
-                "valueFrom": {"fieldRef": {"fieldPath": "metadata.name"}}
+                "valueFrom": {"fieldRef": {"fieldPath": "metadata.name", "apiVersion": "v1"}}
               },
               {
                 "name": "POD_IP",
-                "valueFrom": {"fieldRef": {"fieldPath": "status.podIP"}}
+                "valueFrom": {"fieldRef": {"fieldPath": "status.podIP", "apiVersion": "v1"}}
               },              
               {
                 "name": "POD_NAMESPACE",
-                "valueFrom": {"fieldRef": {"fieldPath": "metadata.namespace"}}
+                "valueFrom": {"fieldRef": {"fieldPath": "metadata.namespace", "apiVersion": "v1"}}
               },
               {
                 "name": "VAULT_CACERT",

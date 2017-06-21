@@ -78,8 +78,11 @@ We will assume that the KEYS environment variable contains the key necessary to 
 For example:
 
 `export KEYS=9++8KEDd72S3aGc0zaY9JW11tnQRDTEkCZWMHK2D0CM=`
+`export KEYS=jo3lnYK+cJ4jUFY2QbxMdEegs/DWmFpDvKUyg4Y4ax8=`
 
 `export ROOT_TOKEN=c30909da-a713-94bf-bf6e-46180ef79a64`
+`export ROOT_TOKEN=f4878769-356f-ba09-f459-844bb27ded41`
+
 
 ```
 vault unseal -tls-skip-verify $KEYS
