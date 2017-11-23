@@ -56,7 +56,7 @@ oc new-project vault-controller
 oc adm policy add-scc-to-user anyuid -z default
 oc create configmap vault-config --from-file=vault-config=./openshift/vault-config.json
 oc create -f ./openshift/vault.yaml
-oc create route passthrough vault --port=8200 --service=vault
+oc create route reencrypt vault --port=8200 --service=vault
 ```
 # Initialize Vault
 ```
@@ -77,11 +77,11 @@ We will assume that the KEYS environment variable contains the key necessary to 
 
 For example:
 
-`export KEYS=9++8KEDd72S3aGc0zaY9JW11tnQRDTEkCZWMHK2D0CM=`
-`export KEYS=jo3lnYK+cJ4jUFY2QbxMdEegs/DWmFpDvKUyg4Y4ax8=`
+`export KEYS=tjgv5s7M4CtMeUz92dU9jV3EudPawgNz6euEnciZoFs=`
 
-`export ROOT_TOKEN=c30909da-a713-94bf-bf6e-46180ef79a64`
-`export ROOT_TOKEN=f4878769-356f-ba09-f459-844bb27ded41`
+
+`export ROOT_TOKEN=1487cceb-f05d-63be-3e24-d08e429c760c`
+
 
 
 ```
@@ -113,4 +113,31 @@ See also the following examples:
 4. support the case where the init-container retrieves the secret as opposed to just a wrapped token that can get the secret (for legacy apps that cannot be modified to talk to Vault - done
 5. add a spring vault example(s) - done
 6. refactor code to be more cloud friendly: single CLI with [cobra](https://github.com/spf13/cobra) CLI management and [viper](https://github.com/spf13/viper) properties management - done
+
+
+# Enable kuberntes native Vault integration
+
+configure kubernetes backend
+```
+oc create sa vault-auth
+oc adm policy add-cluster-role-to-user system:auth-delegator vault-auth
+secret=`oc describe sa vault-auth | grep 'Tokens:' | awk '{print $2}'`
+token=`oc describe secret $secret | grep 'token:' | awk '{print $2}'`
+pod=`oc get pods | grep vault | awk '{print $1}'`
+oc exec $pod -- cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt >> ca.crt
+export VAULT_TOKEN=$ROOT_TOKEN
+vault auth-enable -tls-skip-verify kubernetes
+vault write -tls-skip-verify auth/kubernetes/config token_reviewer_jwt=$token kubernetes_host=https://kubernetes.default.svc:443 kubernetes_ca_cert=@ca.crt
+rm ca.crt
+vault write -tls-skip-verify auth/kubernetes/role/demo bound_service_account_names=default bound_service_account_namespaces='*' policies=default ttl=1h 
+```
+test the default account
+```
+secret=`oc describe sa default | grep 'Tokens:' | awk '{print $2}'`
+token=`oc describe secret $secret | grep 'token:' | awk '{print $2}'`
+vault write -tls-skip-verify auth/kubernetes/login role=demo jwt=$token
+```
+The output of the last comment should be a vault token that can subsequently spent to get other secrets.
+
+see the spring integration demo for how to use this with a spring app.
 
