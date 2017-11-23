@@ -57,7 +57,7 @@ spec:
           imagePullPolicy: Always
           env:     
           - name: JAVA_OPTIONS
-            Value: -Djavax.net.ssl.trustStore=/var/run/secrets/java.io/keystores/truststore.jks -Djavax.net.ssl.trustStorePassword=changeit                 
+            value: -Djavax.net.ssl.trustStore=/var/run/secrets/java.io/keystores/truststore.jks -Djavax.net.ssl.trustStorePassword=changeit                 
           - name: "VAULT_HOST"
             value: "vault.vault-controller.svc.cluster.local"
           - name: "VAULT_PORT"
