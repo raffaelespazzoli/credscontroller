@@ -27,7 +27,7 @@ spec:
         app: vault
     spec:
       containers:
-      - image: vault:0.6.5
+      - image: vault:latest
         name: vault
         ports:
         - containerPort: 8200
@@ -37,6 +37,8 @@ spec:
         - server
         - -log-level=debug    
         env:
+        - name: SKIP_SETCAP
+          value: 'true' 
         - name: VAULT_LOCAL_CONFIG
           valueFrom:
             configMapKeyRef:
@@ -44,7 +46,7 @@ spec:
               key: vault-config
         volumeMounts:      
         - name: vault-file-backend
-          mountPath: /vault-file-backend
+          mountPath: /vault/file
           readOnly: false
         - name: vault-cert
           mountPath: /var/run/secrets/kubernetes.io/certs
