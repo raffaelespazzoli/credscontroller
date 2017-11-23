@@ -43,12 +43,12 @@ oc new-build registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift~ht
 ```
 join the network with vault-controller
 ```
-oc adm pod-network join-projects --to vault-controller spring-example
+oc adm pod-network join-projects --to vault-controller spring-native-example
 ```
 deploy the spring example app
 ```
 oc create -f ./examples/spring-native-example/spring-native-example.yaml
-oc expose svc spring-example
+oc expose svc spring-native-example
 ```
 now you should be able to call a service that returns the secret
 ```

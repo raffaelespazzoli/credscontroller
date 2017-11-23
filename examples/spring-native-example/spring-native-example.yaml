@@ -2,20 +2,20 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: spring-example
-  name: spring-example 
+    app: spring-native-example
+  name: spring-native-example 
 spec:
   ports:
   - port: 8080
     protocol: TCP
     targetPort: 8080
   selector:
-    app: spring-example
+    app: spring-native-example
 ---
 apiVersion: v1
 kind: DeploymentConfig
 metadata:
-  name: spring-example
+  name: spring-native-example
 spec:
   triggers:
     -
@@ -25,16 +25,16 @@ spec:
       imageChangeParams:
         automatic: true
         containerNames:
-          - spring-example
+          - spring-native-example
         from:
           kind: ImageStreamTag
-          namespace: spring-example
-          name: 'spring-example:latest'
+          namespace: spring-native-example
+          name: 'spring-native-example:latest'
   replicas: 1
   template:
     metadata:
       labels:
-        app: spring-example       
+        app: spring-native-example       
     spec:
       initContainers:
       - name: pem-to-truststore
@@ -52,8 +52,8 @@ spec:
           - name: keystore-volume
             mountPath: /var/run/secrets/java.io/keystores      
       containers:
-        - name: spring-example
-          image: "spring-example/spring-example:latest"
+        - name: spring-native-example
+          image: "spring-native-example/spring-native-example:latest"
           imagePullPolicy: Always
           env:     
           - name: JAVA_OPTIONS
