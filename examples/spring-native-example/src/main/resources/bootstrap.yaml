@@ -1,10 +1,11 @@
+spring.application.name: spring-native-example
 spring.cloud.vault:
     host: ${vault.host:localhost}
     port: ${vault.port:8200}
     scheme: https
     authentication: KUBERNETES
     kubernetes:
-        role: spring-example
+        role: spring-native-example
         service-account-token-file: /var/run/secrets/kubernetes.io/serviceaccount/token
     config:
         order: 10

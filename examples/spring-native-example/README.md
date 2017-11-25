@@ -7,6 +7,7 @@ The below picture shows the workflow.
 
 TODO
 
+We assume that vault is alsready installed in the `vault-controller` project. Notice that the vault controller pod does not need to be installed.
 If you haven't already done it, configure Vault to use the kubernetes authentication method:
 ```
 oc project vault-controller
@@ -20,19 +21,22 @@ export VAULT_TOKEN=$ROOT_TOKEN
 vault auth-enable -tls-skip-verify kubernetes
 vault write -tls-skip-verify auth/kubernetes/config token_reviewer_jwt=$token kubernetes_host=https://kubernetes.default.svc:443 kubernetes_ca_cert=@ca.crt
 rm ca.crt
-vault write -tls-skip-verify auth/kubernetes/role/spring-example bound_service_account_names=default bound_service_account_namespaces='*' policies=default ttl=1h 
 ```
-with this setup any default service account will be able to use the spring-example role in vault. 
-
+notice: `system:auth-delegator` does not seem to work. `cluster-admin` works
 Create a policy that allows the spring-example role to read only from the spring-example generic backend
 ```
 export VAULT_TOKEN=$ROOT_TOKEN
 vault policy-write -tls-skip-verify spring-example ./examples/spring-native-example/spring-native-example.hcl 
 ```
+Bind the policy with the `spring-native-example` role.
+```
+vault write -tls-skip-verify auth/kubernetes/role/spring-native-example bound_service_account_names=default bound_service_account_namespaces='*' policies=spring-native-example ttl=1h 
+```
+with this setup any default service account will be able to use the `spring-native-example` role in vault. 
 
 Create a secret for the application to consume
 ```
-vault write -tls-skip-verify secret/spring-example password=pwd 
+vault write -tls-skip-verify secret/spring-native-example password=pwd 
 ```
 
 Build the application
