@@ -61,7 +61,7 @@ oc create route reencrypt vault --port=8200 --service=vault
 # Initialize Vault
 ```
 export VAULT_ADDR=https://`oc get route | grep -m1 vault | awk '{print $2}'`
-vault init -tls-skip-verify -key-shares=1 -key-threshold=1
+vault operator init -tls-skip-verify -key-shares=1 -key-threshold=1
 ```
 Save the generated key and token. 
 
@@ -85,7 +85,7 @@ For example:
 
 
 ```
-vault unseal -tls-skip-verify $KEYS
+vault operator unseal -tls-skip-verify $KEYS
 ```
 
 # Install Vault Controller
