@@ -126,7 +126,7 @@ token=`oc describe secret $secret | grep 'token:' | awk '{print $2}'`
 pod=`oc get pods | grep vault | awk '{print $1}'`
 oc exec $pod -- cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt >> ca.crt
 export VAULT_TOKEN=$ROOT_TOKEN
-vault auth-enable -tls-skip-verify kubernetes
+vault auth enable -tls-skip-verify kubernetes
 vault write -tls-skip-verify auth/kubernetes/config token_reviewer_jwt=$token kubernetes_host=https://kubernetes.default.svc:443 kubernetes_ca_cert=@ca.crt
 rm ca.crt
 vault write -tls-skip-verify auth/kubernetes/role/demo bound_service_account_names=default bound_service_account_namespaces='*' policies=default ttl=1h 
