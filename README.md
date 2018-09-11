@@ -120,7 +120,7 @@ See also the following examples:
 configure kubernetes backend
 ```
 oc create sa vault-auth
-oc adm policy add-cluster-role-to-user system:auth-delegator vault-auth
+oc adm policy add-cluster-role-to-user system:auth-delegator -z vault-auth
 secret=`oc describe sa vault-auth | grep 'Tokens:' | awk '{print $2}'`
 token=`oc describe secret $secret | grep 'token:' | awk '{print $2}'`
 pod=`oc get pods | grep vault | awk '{print $1}'`
