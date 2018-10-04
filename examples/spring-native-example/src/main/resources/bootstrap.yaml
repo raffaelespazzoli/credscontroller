@@ -11,4 +11,4 @@ spring.cloud.vault:
         service-account-token-file: /var/run/secrets/kubernetes.io/serviceaccount/token
     config:
         order: 10
-logging.level.org.springframework: debug                
+logging.level.org.springframework: info                
