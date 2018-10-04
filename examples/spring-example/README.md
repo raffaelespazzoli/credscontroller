@@ -4,7 +4,7 @@ In this example we are deploying a spring application that connects to Vault usi
 
 The below picture shows the workflow.
 
-You need to have Vault and Vault-Controller installed as explained [here](../README.md)
+You need to have Vault and Vault-Controller installed as explained [here](../../README.md)
 
 Create a policy that allows the spring-example role to read only from the spring-example generic backend
 ```

@@ -1,5 +1,7 @@
 spring.application.name: spring-native-example
 spring.cloud.vault:
+    generic:
+        enabled: false
     host: ${vault.host:localhost}
     port: ${vault.port:8200}
     scheme: https
@@ -9,4 +11,4 @@ spring.cloud.vault:
         service-account-token-file: /var/run/secrets/kubernetes.io/serviceaccount/token
     config:
         order: 10
-logging.level.org.springframework: debug                
+logging.level.org.springframework: info                

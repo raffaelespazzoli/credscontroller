@@ -61,7 +61,7 @@ oc create route reencrypt vault --port=8200 --service=vault
 # Initialize Vault
 ```
 export VAULT_ADDR=https://`oc get route | grep -m1 vault | awk '{print $2}'`
-vault init -tls-skip-verify -key-shares=1 -key-threshold=1
+vault operator init -tls-skip-verify -key-shares=1 -key-threshold=1
 ```
 Save the generated key and token. 
 
@@ -85,7 +85,7 @@ For example:
 
 
 ```
-vault unseal -tls-skip-verify $KEYS
+vault operator unseal -tls-skip-verify $KEYS
 ```
 
 # Install Vault Controller
@@ -126,7 +126,7 @@ token=`oc describe secret $secret | grep 'token:' | awk '{print $2}'`
 pod=`oc get pods | grep vault | awk '{print $1}'`
 oc exec $pod -- cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt >> ca.crt
 export VAULT_TOKEN=$ROOT_TOKEN
-vault auth-enable -tls-skip-verify kubernetes
+vault auth enable -tls-skip-verify kubernetes
 vault write -tls-skip-verify auth/kubernetes/config token_reviewer_jwt=$token kubernetes_host=https://kubernetes.default.svc:443 kubernetes_ca_cert=@ca.crt
 rm ca.crt
 vault write -tls-skip-verify auth/kubernetes/role/demo bound_service_account_names=default bound_service_account_namespaces='*' policies=default ttl=1h 
